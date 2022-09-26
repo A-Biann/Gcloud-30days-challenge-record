@@ -1,0 +1,93 @@
+CREATE USER import_user PASSWORD 'DMS_1s_cool!';
+ALTER DATABASE orders OWNER TO importuner;
+ALTER ROLE import_user WITH REPLICATION;
+
+\c postgres;
+GRANT USAGE ON SCHEMA pglogical TO import_user;
+GRANT ALL ON SCHEMA pglogical TO import_user;
+GRANT SELECT ON pglogical.tables TO import_user;
+GRANT SELECT ON pglogical.depend TO import_user;
+GRANT SELECT ON pglogical.local_node TO import_user;
+GRANT SELECT ON pglogical.local_sync_status TO import_user;
+GRANT SELECT ON pglogical.node TO import_user;
+GRANT SELECT ON pglogical.node_interface TO import_user;
+GRANT SELECT ON pglogical.queue TO import_user;
+GRANT SELECT ON pglogical.replication_set TO import_user;
+GRANT SELECT ON pglogical.replication_set_seq TO import_user;
+GRANT SELECT ON pglogical.replication_set_table TO import_user;
+GRANT SELECT ON pglogical.sequence_state TO import_user;
+GRANT SELECT ON pglogical.subscription TO import_user;
+
+\c orders;
+GRANT USAGE ON SCHEMA pglogical TO import_user;
+GRANT ALL ON SCHEMA pglogical TO import_user;
+GRANT SELECT ON pglogical.tables TO import_user;
+GRANT SELECT ON pglogical.depend TO import_user;
+GRANT SELECT ON pglogical.local_node TO import_user;
+GRANT SELECT ON pglogical.local_sync_status TO import_user;
+GRANT SELECT ON pglogical.node TO import_user;
+GRANT SELECT ON pglogical.node_interface TO import_user;
+GRANT SELECT ON pglogical.queue TO import_user;
+GRANT SELECT ON pglogical.replication_set TO import_user;
+GRANT SELECT ON pglogical.replication_set_seq TO import_user;
+GRANT SELECT ON pglogical.replication_set_table TO import_user;
+GRANT SELECT ON pglogical.sequence_state TO import_user;
+GRANT SELECT ON pglogical.subscription TO import_user;
+
+
+GRANT USAGE ON SCHEMA public TO import_user;
+GRANT ALL ON SCHEMA public TO import_user;
+GRANT SELECT ON public.distribution_centers TO import_user;
+GRANT SELECT ON public.inventory_items TO import_user;
+GRANT SELECT ON public.order_items TO import_user;
+GRANT SELECT ON public.products TO import_user;
+GRANT SELECT ON public.users TO import_user;
+
+\c orders;
+\dt
+ALTER TABLE public.distribution_centers OWNER TO import_user;
+ALTER TABLE public.inventory_items OWNER TO import_user;
+ALTER TABLE public.order_items OWNER TO import_user;
+ALTER TABLE public.products OWNER TO import_user;
+ALTER TABLE public.users OWNER TO import_user;
+\dt
+
+\c orders;
+ALTER TABLE inventory_items ADD PRIMARY KEY (id);
+
+10.128.0.2
+corp-postgres67
+supersecret!
+10.108.192.0/24
+sudo vim /etc/postgresql/13/main/pg_hba.conf
+sudo systemctl start postgresql@13-main
+gcloud sql instances patch $CLOUDSQL_INSTANCE \
+    --database-flags cloudsql.enable_pgaudit=on,pgaudit.log=all
+\c orders;
+CREATE EXTENSION pgaudit;
+ALTER DATABASE orders SET pgaudit.log = 'read,write';
+
+export USERNAME=$(gcloud config list --format="value(core.account)")
+export CLOUDSQL_INSTANCE=corp-postgres67
+export POSTGRESQL_IP=$(gcloud sql instances describe $CLOUDSQL_INSTANCE --format="value(ipAddresses[0].ipAddress)")
+export PGPASSWORD=$(gcloud auth print-access-token)
+psql --host=$POSTGRESQL_IP student-02-1d43cd418f7e@qwiklabs.net --dbname=orders
+
+student-02-1d43cd418f7e@qwiklabs.net
+
+gcloud sql connect corp-postgres67 --user=postgres –quiet
+\c orders;
+GRANT SELECT ON TABLE inventory_items TO "student-02-1d43cd418f7e@qwiklabs.net";
+\q
+export PGPASSWORD=$(gcloud auth print-access-token)
+psql --host=$POSTGRESQL_IP $USERNAME --dbname=orders
+SELECT COUNT(*) FROM order_items;
+
+
+export CLOUD_SQL_INSTANCE=corp-postgres67
+gcloud sql instances describe $CLOUD_SQL_INSTANCE
+
+SELECT COUNT(*) FROM distribution_centers;
+date --rfc-3339=seconds
+INSERT INTO distribution_centers VALUES(-80.1918,25.7617,'Miami FL',11);
+SELECT COUNT(*) FROM distribution_centers;
