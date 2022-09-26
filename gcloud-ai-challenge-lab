@@ -1,0 +1,77 @@
+Name
+form-parser
+ID
+5260cda1abe85cda
+Status
+ Enabled
+Processor Type
+Form Parser
+Encryption Type
+Google-managed key
+
+python3 synchronous_doc_ai.py \
+--project_id=$PROJECT_ID \
+--processor_id=5260cda1abe85cda \
+--location=us \
+--file_name=health-intake-form.pdf | tee results.txt
+5f59672279b74e9
+
+Name
+ocr-processor
+ID
+413c3fcebd85fcb2
+Status
+ Enabled
+Processor Type
+Document OCR
+Encryption Type
+Google-managed key
+AIzaSyCI1MiJeFgYsLX1TkcrzCvOCi5QrCsRS0k
+
+Name
+form-processor
+ID
+f8aaac69d6669963
+Status
+ Enabled
+Processor Type
+Form Parser
+Encryption Type
+Google-managed key
+Prediction
+Name
+finance-processor
+ID
+b8d7941a3e9767d1
+Status
+ Enabled
+Processor Type
+Form Parser
+Encryption Type
+Google-managed key
+
+export PROJECT_ID=$(gcloud config get-value core/project)
+export BUCKET_LOCATION=us-central1
+gsutil mb -c standard -l ${BUCKET_LOCATION} -b on \
+ gs://${PROJECT_ID}-input-invoices
+gsutil mb -c standard -l ${BUCKET_LOCATION} -b on \
+ gs://${PROJECT_ID}-output-invoices
+gsutil mb -c standard -l ${BUCKET_LOCATION} -b on \
+ gs://${PROJECT_ID}-archived-invoices
+
+qwiklabs-gcp-02-cbe964a41f30-input-invoices
+
+  bq --location=US mk  -d \
+     --description "Form Parser Results" \
+     ${PROJECT_ID}:invoice_parser_results
+document-ai-challenge/scripts/table-schema/doc_ai_extracted_entities.json
+  cd ~/documentai-pipeline-demo/scripts/table-schema/
+  bq mk --table \
+    invoice_parser_results.doc_ai_extracted_entities \
+    document-ai-challenge/scripts/table-schema/doc_ai_extracted_entities.json
+
+scripts/cloud-functions/process-invoices
+  export PROJECT_ID=$(gcloud config get-value core/project)
+  gsutil cp gs:// scripts/cloud-functions/process-invoices * gs://${PROJECT_ID}-input-invoices/
+
+gsutil cp /home/student_02_6f86fe62fbc6/document-ai-challenge/invoices/* gs://${PROJECT_ID}-input-invoices/
